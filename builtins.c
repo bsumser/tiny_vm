@@ -632,6 +632,78 @@ vm_Word method_Int_plus[] = {
         {.intval = 1}
 };
 
+
+/*ADDED FUNCTIONS START HERE*/
+
+/* Int:minus (new native_method) */
+obj_ref native_Int_minus(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Int);
+    obj_Int this_int = (obj_Int) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Int);
+    obj_Int other_int = (obj_Int) other;
+    log_debug("Subtracting integer values: %d - %d",
+           this_int->value, other_int->value);
+    obj_ref diff = new_int(this_int->value - other_int->value);
+    return diff;
+}
+
+vm_Word method_Int_minus[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Int_minus},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
+/* Int:multi (new native_method) */
+obj_ref native_Int_multi(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Int);
+    obj_Int this_int = (obj_Int) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Int);
+    obj_Int other_int = (obj_Int) other;
+    log_debug("multiplying integer values: %d * %d",
+           this_int->value, other_int->value);
+    obj_ref multi = new_int(this_int->value * other_int->value);
+    return multi;
+}
+
+vm_Word method_Int_multi[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Int_multi},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
+/* Int:divide (new native_method) */
+obj_ref native_Int_divi(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Int);
+    obj_Int this_int = (obj_Int) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Int);
+    obj_Int other_int = (obj_Int) other;
+    log_debug("dividing integer values: %d / %d",
+           this_int->value, other_int->value);
+    obj_ref divi = new_int(this_int->value / other_int->value);
+    return divi;
+}
+
+vm_Word method_Int_divi[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Int_divi},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
+/*ADDED FUNCTIONS END HERE*/
+
+
 /* The Int Class (a singleton) */
 struct  class_struct  the_class_Int_struct = {
         .header = {
@@ -647,7 +719,10 @@ struct  class_struct  the_class_Int_struct = {
                 method_Obj_print, // PRINT
                 method_Int_equals,  // EQUALS
                 method_Int_less, // LESS
-                method_Int_plus
+                method_Int_plus,
+                method_Int_minus,
+                method_Int_multi,
+                method_Int_divi
         }
  };
 
