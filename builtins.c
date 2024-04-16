@@ -722,7 +722,7 @@ struct  class_struct  the_class_Int_struct = {
                 method_Int_plus,
                 method_Int_minus,
                 method_Int_multi,
-                method_Int_divi
+                method_Int_divi,
         }
  };
 

@@ -229,13 +229,6 @@ char *guess_description(vm_Word w) {
      * cases when it is not.
      */
 
-    /* An object? */
-    if (w.obj->header.tag == GOOD_OBJ_TAG) {
-        sprintf(buff, "(%s object) %p",
-                w.obj->header.clazz->header.class_name,
-                w.obj);
-        return buff;
-    }
     /* An address on the stack? */
     long stack_base =  (long) &vm_frame_stack[0];
     long stack_limit = (long) &vm_frame_stack[FRAME_CAPACITY];
@@ -245,11 +238,19 @@ char *guess_description(vm_Word w) {
         sprintf(buff, "(stack ptr) %d", frame_num);
         return buff;
     }
+    /* An object? */
+    if (w.obj->header.tag == GOOD_OBJ_TAG) {
+        sprintf(buff, "(%s object) %p",
+                w.obj->header.clazz->header.class_name,
+                w.obj);
+        return buff;
+    }
     /* We can't currently distinguish class objects
      * from other things.
      */
     sprintf(buff, "Unknown thing: %p",  w.instr);
     return buff;
+    l
 }
 
 void stack_dump(int n_words) {
