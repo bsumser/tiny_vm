@@ -250,7 +250,6 @@ char *guess_description(vm_Word w) {
      */
     sprintf(buff, "Unknown thing: %p",  w.instr);
     return buff;
-    l
 }
 
 void stack_dump(int n_words) {
