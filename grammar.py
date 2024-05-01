@@ -19,10 +19,10 @@ quack = Lark (r"""
 
     assignment : l_exp ":" ident "=" r_exp
 
-    l_exp : ident
+    ?l_exp : ident
             | r_exp "." ident ";"
 
-    r_exp : NUMBER
+    ?r_exp : NUMBER
             | sum
             | r_exp sum r_exp
 
