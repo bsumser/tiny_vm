@@ -28,25 +28,23 @@ quack = Lark (r"""
 
     %ignore WS
 
-""", start = "r_exp")
+""", start = "program")
 
 class QuackTransformer(Transformer):
-    def program(self, ret = "program node"):
-        print(ret)
-    def statement(self, ret = "statement node"):
-        print(ret)
-    def r_exp(self):
-        print("r_exp hit")
+    def program(self, tok):
+        print(f"toks are {tok}")
+        programNode = ProgramNode(tok)
+        print(f"childs are {programNode.children}")
+        programNode.walk
     def add(self, tok):
-        ret = "add node"
-        print(ret, tok)
-        print(tok[0] + tok[1])
-        return(tok[0] + tok[1])
+        print(f"add node {tok}")
+        left, right = tok
+        return left + ".PLUS(" + right + ")"
     def number(self, tok):
         #"Convert the value of `tok` from string to int, while maintaining line number & column."
         ret = "number node"
         print(ret, tok)
-        return int(tok[0])
+        return "const " + " " + tok[0]
 
 
 directory = "./test_progs"
