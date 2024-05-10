@@ -2,15 +2,12 @@ import logging
 
 class ASTNode:
     def __init__(self):
-        log = logging.getLogger(__name__)
-        logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.DEBUG)
-        log.debug(f"init astNode")
+        print(f"init astNode")
         self.children = []
     
     def walk(self):
-        for child in flatten(self.children):
+        for child in self.children:
             log.debug(f"visit ASTNode of class {child.__class__.__name__}")
-
             try:
                 child.walk()
             except Exception as e:
@@ -20,3 +17,11 @@ class ASTNode:
         log.debug("-> plus")
         left, right = e
         return left + right
+    
+    def r_eval(self, buffer: list[str]):
+        print("not implemented")
+
+class ProgramNode(ASTNode):
+    def __init__(self, toks):
+        self.children = toks
+        buffer = []
