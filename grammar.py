@@ -1,13 +1,10 @@
-from lark import Lark, ast_utils, Transformer, v_args
+import lark
 import os
 from AST import *
 
-class QuackTransformer(Transformer):
-    def program(self, tok):
-        print(f"toks are {tok}")
-        programNode = ProgramNode(tok)
-        print(f"childs are {programNode.children}")
-        programNode.walk
+class QuackTransformer(lark.Transformer):
+    def program(self, data):
+        programNode = ProgramNode(data)
     def add(self, tok):
         print(f"add node {tok}")
         left, right = tok
@@ -23,17 +20,17 @@ fail = '\x1b[0;30;41m' + 'FAIL!' + '\x1b[0m'
 
 def main():
     gram_file = open("grammar.lark", "r")
-    parser = Lark(gram_file)
+    parser = lark.Lark(gram_file)
     src_file = open("./test_progs/r_exp_test.qk", "r")
     src_text = "".join(src_file.readlines())
     parse_tree = parser.parse(src_text)
-    res_print = parse_tree.pretty()
 
-    print(res_print)
+    print(parse_tree.pretty())
 
     transformer = QuackTransformer()
     ast = transformer.transform(parse_tree)
     print(ast)
+    print(f"as {repr(ast)}")
 
 def prog_checker():
     for filename in os.listdir(directory):

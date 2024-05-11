@@ -1,9 +1,13 @@
 import logging
+logging.basicConfig()
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 class ASTNode:
-    def __init__(self):
-        print(f"init astNode")
-        self.children = []
+    def __init__(self, data):
+        log.debug(f"init ASTNode of class {self.__class__.__name__}")
+        self.children = data
+        log.debug(f"{self.children}")
     
     def walk(self):
         for child in self.children:
@@ -22,6 +26,4 @@ class ASTNode:
         print("not implemented")
 
 class ProgramNode(ASTNode):
-    def __init__(self, toks):
-        self.children = toks
-        buffer = []
+    pass
