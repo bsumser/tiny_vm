@@ -2,34 +2,6 @@ from lark import Lark, ast_utils, Transformer, v_args
 import os
 from AST import *
 
-quack = Lark (r"""
-    %import common.WS
-    %import common.CNAME -> NAME
-    %import common.NUMBER
-    
-    ident: NAME
-    
-    program : r_exp
-    
-    ?r_exp : sum ";"
-
-    ?sum: product
-            | sum "+" product   -> add
-            | sum "-" product   -> sub
-    
-        ?product: atom
-            | product "*" atom  -> mul
-            | product "/" atom  -> div
-    
-        ?atom: NUMBER           -> number
-             | "-" atom         -> neg
-             | NAME             -> var
-             | "(" sum ")"
-
-    %ignore WS
-
-""", start = "program")
-
 class QuackTransformer(Transformer):
     def program(self, tok):
         print(f"toks are {tok}")
@@ -39,12 +11,10 @@ class QuackTransformer(Transformer):
     def add(self, tok):
         print(f"add node {tok}")
         left, right = tok
-        return left + ".PLUS(" + right + ")"
-    def number(self, tok):
+    def NUMBER(self, data):
         #"Convert the value of `tok` from string to int, while maintaining line number & column."
-        ret = "number node"
-        print(ret, tok)
-        return "const " + " " + tok[0]
+        print(f"number node {data}")
+        return "const " + " " + data[0]
 
 
 directory = "./test_progs"
@@ -52,6 +22,20 @@ success = '\x1b[6;30;42m' + 'Success!' + '\x1b[0m'
 fail = '\x1b[0;30;41m' + 'FAIL!' + '\x1b[0m'
 
 def main():
+    gram_file = open("grammar.lark", "r")
+    parser = Lark(gram_file)
+    src_file = open("./test_progs/r_exp_test.qk", "r")
+    src_text = "".join(src_file.readlines())
+    parse_tree = parser.parse(src_text)
+    res_print = parse_tree.pretty()
+
+    print(res_print)
+
+    transformer = QuackTransformer()
+    ast = transformer.transform(parse_tree)
+    print(ast)
+
+def prog_checker():
     for filename in os.listdir(directory):
         file = os.path.join(directory, filename)
         test_summary = []
@@ -73,6 +57,7 @@ def main():
                 print(e)
                 test_summary.append(exception)
                 continue
+
 
 if __name__=="__main__": 
     main()
