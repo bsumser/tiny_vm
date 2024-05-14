@@ -5,9 +5,9 @@ log.setLevel(logging.DEBUG)
 
 class ASTNode:
     def __init__(self, data):
-        log.debug(f"init ASTNode of class {self.__class__.__name__}")
+        print(f"init ASTNode of class {self.__class__.__name__}")
         self.children = data
-        log.debug(f"{self.children}")
+        print(f"{self.children}")
     
     def walk(self):
         for child in self.children:
@@ -26,4 +26,15 @@ class ASTNode:
         print("not implemented")
 
 class ProgramNode(ASTNode):
+    pass
+
+
+class AddNode(ASTNode):
+    def __init__(self, data):
+        print(f"init ASTNode of class {self.__class__.__name__}")
+        self.children = data
+        print(f"{self.children}")
+        self.buffer = []
+
+class Number(ASTNode):
     pass

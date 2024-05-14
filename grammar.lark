@@ -1,6 +1,6 @@
 ?start: program
 
-?program : r_exp*
+?program : r_exp
     
 ?r_exp : sum ";"
 

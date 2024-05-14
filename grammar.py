@@ -5,10 +5,20 @@ from AST import *
 class QuackTransformer(lark.Transformer):
     def program(self, data):
         programNode = ProgramNode(data)
-    def add(self, tok):
-        print(f"add node {tok}")
-        left, right = tok
-    def NUMBER(self, data):
+        print(programNode.children)
+        return programNode
+    def r_exp(self, data):
+        print(f"r_exp node {data}")
+    def sum(self, data):
+        print(f"add node {data}")
+        buffer = []
+        buffer.append(data[0])
+        buffer.append(data[1])
+        buffer.append("call Int:plus")
+        addNode = AddNode(data)
+        addNode.buffer = buffer
+        return addNode
+    def number(self, data):
         #"Convert the value of `tok` from string to int, while maintaining line number & column."
         print(f"number node {data}")
         return "const " + " " + data[0]
