@@ -1,8 +1,12 @@
 ?start: program
 
-?program : r_exp
+program : statement*
+
+?statement : r_exp | assignment
+
+assignment : ident ":" ident "=" number ";"
     
-?r_exp : sum ";"
+r_exp : sum ";"
 
 ?sum: product
         | sum "+" product   -> add
@@ -18,6 +22,8 @@
 
 number: NUMBER
 NUMBER: /[0-9]+/
+ident: IDENT
+IDENT: /[_a-zA-Z][_a-zA-Z0-9]*/
 
 %import common.WS
 %ignore WS
