@@ -13,8 +13,12 @@ class ASTNode:
     def walk(self):
         for child in self.children:
             child.walk()
+
     def __repr__(self):
         return repr(self.__dict__)
+
+    def code_gen(self):
+        raise NotImplemented("AST BASE CLASS")
 
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
@@ -47,12 +51,27 @@ class ProgramNode(ASTNode):
         self.statements = statements
         self.children = statements
 
+    def code_gen(self):
+        buffer = []
+        code = (f"code gen at {self.__class__.__name__}")
+        print(code)
+        for child in self.children:
+            child.code_gen(buffer)
+        return buffer
+
 class AssigNode(ASTNode):
     def __init__(self, var_type, var_name, value):
         self.var_type = var_type
         self.var_name = var_name
         self.value = value
-        self.children = [var_type, var_name, value]
+        self.children = [var_name, var_type, value]
+    
+    def code_gen(self, buffer):
+        code = (f"code gen at {self.__class__.__name__}")
+        print(code)
+        self.value.code_gen(buffer)
+        self.var_type.code_gen(buffer)
+        return True
 
 class OpHelp(ASTNode):
     def __init__(self, left, right, op):
@@ -60,6 +79,21 @@ class OpHelp(ASTNode):
         self.right = right
         self.op = op
         self.children = [left, right]
+
+    def code_gen(self, buffer):
+        code = (f"code gen at {self.__class__.__name__}")
+        print(code)
+        opDict = {
+          "+": "Int:plus",
+          "-": "Int:minus",
+          "/": "Int:divi",
+          "*": "Int:multi",
+        }
+
+        for child in self.children:
+            child.code_gen(buffer)
+        buffer.append(f"call {opDict[self.op]}")
+        return True
     
     def walk(self):
         print(self.children)
@@ -68,8 +102,15 @@ class NumberNode(ASTNode):
     def __init__(self, value):
         self.value = value
         self.children = value
+
     def walk(self):
         print(self.value)
+
+    def code_gen(self, buffer):
+        code = (f"code gen at {self.__class__.__name__}")
+        print(code)
+        buffer.append(f"const {self.value}")
+        return True
     
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
@@ -92,6 +133,13 @@ class IdentNode(ASTNode):
     def walk(self):
         print(self.name)
     
+    def code_gen(self, buffer):
+        code = (f"code gen at {self.__class__.__name__}")
+        print(code)
+        buffer.append(f"store {self.name}")
+        return True
+
+    
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
             graph = Digraph()
@@ -109,3 +157,10 @@ class R_ExpNode(ASTNode):
     def __init__(self, expression):
         self.expression = expression
         self.children = [expression]
+
+    def code_gen(self, buffer):
+        code = (f"code gen at {self.__class__.__name__}")
+        print(code)
+        for child in self.children:
+            child.code_gen(buffer)
+        return True

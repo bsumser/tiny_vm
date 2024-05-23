@@ -1,5 +1,6 @@
 from lark import Lark, Transformer, v_args
 from AST import *
+import collections
 
 
 @v_args(inline=True)
@@ -34,8 +35,6 @@ class QuackTransformer(Transformer):
     def r_exp(self, expression):
         return R_ExpNode(expression)
 
-
-
 def main():
     gram_file = open("grammar.lark", "r")
     parser = Lark(gram_file)
@@ -51,6 +50,14 @@ def main():
     print(repr(ast.walk()))
     graph = ast.to_graphviz()
     graph.render('ast', format='png', view=True)
+    program = ast.code_gen()
+
+    for line in program:
+        print(line)
+
+    with open('out.asm', 'w') as f:
+        for line in program:
+            f.write(f"{line}\n")
 
 if __name__=="__main__": 
     main()

@@ -1,0 +1,16 @@
+const 42
+const 21
+call Int:plus
+const 21
+call Int:plus
+const 17
+store x
+const 87
+const 21
+call Int:plus
+const 21
+call Int:plus
+const 871
+store y
+const 192
+store z
