@@ -278,6 +278,14 @@ class Equals_Node(ASTNode):
         self.right.code_gen(buffer)
         buffer.append(f"call Int:Equals")
 
+class Return_Node(ASTNode):
+    def __init__(self, value):
+        self.value = value
+        self.children = [value]
+
+    def code_gen(self, buffer):
+       self.value.code_gen(buffer)
+       buffer.append(f"return 1") 
 
 class Temp_Node(ASTNode):
     def __init__(self, left, right):

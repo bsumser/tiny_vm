@@ -32,3 +32,5 @@ label0:
 const 69
 const 69
 call Int:plus
+const 666
+return 1

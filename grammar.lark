@@ -1,10 +1,12 @@
 ?start: program
 
-program : statement*
+program : statement* (return_statement)
 
 ?statement : r_exp ";" | assignment ";" | if_statement
 
 assignment : ident ":" ident "=" number
+
+return_statement : "return" [r_exp] ";"
 
 if_statement : "if" log_exp "{" (statement)* "}" else_statement
         | "if" log_exp "{" (statement)* "}"

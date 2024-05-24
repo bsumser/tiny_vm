@@ -44,6 +44,9 @@ class QuackTransformer(Transformer):
 
     def log_exp(self, left, right):
         return Log_Exp_Node(left, right)
+    
+    def return_statement(self, value):
+        return Return_Node(value)
 
     def equals(self, left, right):
         return Equals_Node(left, right)
