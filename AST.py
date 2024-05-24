@@ -186,16 +186,16 @@ class If_Node(ASTNode):
 
         #evalute block
         self.block.code_gen(buffer)
-        buffer.append(f"jump{last_label}")
+        buffer.append(f"jump {last_label}")
 
         # visit else_block if it exists
         if self.else_block:
             buffer.append(f"{else_label}:")
             label_num = self.label_count
-            self.else_block.code_gen(buffer, label_num)
+            self.else_block.code_gen(buffer, label_num, last_label)
 
         # last label
-        buffer.append(f"{last_label}")
+        buffer.append(f"{last_label}:")
 
     def label_gen(self):
         label = f"label{self.label_count}"
@@ -214,11 +214,10 @@ class Else_Node(ASTNode):
             self.block = data[0]
         self.children = data
 
-    def code_gen(self, buffer, label_num):
+    def code_gen(self, buffer, label_num, last_label):
         # pass current label number down to else
         self.label_count = label_num
         
-        last_label = f"{self.label_gen()} + label_num"
         else_label = self.label_gen() if self.else_block else last_label
 
         if len(self.children) > 1:
@@ -228,17 +227,18 @@ class Else_Node(ASTNode):
 
             #evalute block
             self.block.code_gen(buffer)
-            buffer.append(f"jump{last_label}")
+            buffer.append(f"jump {last_label}")
 
             # visit else_block if it exists
             if self.else_block:
                 buffer.append(f"{else_label}:")
-                label_num = self.label
-                self.else_block.code_gen(buffer, label_num)
+                label_num = self.label_count
+                self.else_block.code_gen(buffer, label_num, last_label)
+
         else:
             #evalute block
             self.block.code_gen(buffer)
-            buffer.append(f"jump{last_label}")
+            buffer.append(f"jump {last_label}")
 
 
     def label_gen(self):
