@@ -1,3 +1,4 @@
+.local x
 const 42
 const 21
 call Int:plus
@@ -5,12 +6,24 @@ const 21
 call Int:plus
 const 17
 store x
-const 87
+const 1
+const 2
+call Int:Equals
+jump_ifnot label1
 const 21
+const 23
+call Int:minus
+jump label0
+label1:
+const 1
+const 3
+call Int:Equals
+jump_ifnot label2
+const 1
+const 3
+call Int:Equals
+jump label0
+label0:
+const 69
+const 69
 call Int:plus
-const 21
-call Int:plus
-const 871
-store y
-const 192
-store z

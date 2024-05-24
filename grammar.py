@@ -1,6 +1,5 @@
 from lark import Lark, Transformer, v_args
 from AST import *
-import collections
 
 
 @v_args(inline=True)
@@ -34,6 +33,38 @@ class QuackTransformer(Transformer):
     
     def r_exp(self, expression):
         return R_ExpNode(expression)
+    
+    @v_args(inline=False)
+    def if_statement(self, data):
+        return If_Node(data)
+
+    def log_exp(self, left, right):
+        return Log_Exp_Node(left, right)
+
+    def equals(self, left, right):
+        return Equals_Node(left, right)
+
+    def less_equals(self, left, right):
+        return Temp_Node(left, right)
+
+    def less_than(self, left, right):
+        return Less_Than_Node(left, right)
+
+    def great_equals(self, left, right):
+        return Temp_Node(left, right)
+
+    def great_than(self, left, right):
+        return Temp_Node(left, right)
+
+    def and_(self, left, right):
+        return Temp_Node(left, right)
+
+    def or_(self, left, right):
+        return Temp_Node(left, right)
+
+    def not_(self, left, right):
+        return Temp_Node(left, right)
+
 
 def main():
     gram_file = open("grammar.lark", "r")

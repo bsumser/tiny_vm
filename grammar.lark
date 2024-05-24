@@ -2,11 +2,24 @@
 
 program : statement*
 
-?statement : r_exp | assignment
+?statement : r_exp ";" | assignment ";" | if_statement
 
-assignment : ident ":" ident "=" number ";"
+assignment : ident ":" ident "=" number
+
+if_statement : "if" log_exp "{" (statement)* "}" ("else if" log_exp "{" (statement)* "}")* ["else" "{" (statement)* "}"]
+
+log_exp: r_exp "==" r_exp   -> equals
+        | r_exp "<=" r_exp   -> less_equals
+        | r_exp "<" r_exp    -> less_than
+        | r_exp ">=" r_exp   -> great_equals
+        | r_exp ">" r_exp    -> great_than
+        | r_exp "and" r_exp  -> and_
+        | r_exp "or" r_exp   -> or_
+        | "not" r_exp           -> not_
+        | "(" r_exp ")"
+        | NUMBER
     
-r_exp : sum ";"
+r_exp : sum
 
 ?sum: product
         | sum "+" product   -> add
