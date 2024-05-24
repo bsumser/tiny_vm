@@ -37,6 +37,10 @@ class QuackTransformer(Transformer):
     @v_args(inline=False)
     def if_statement(self, data):
         return If_Node(data)
+    
+    @v_args(inline=False)
+    def else_statement(self, data):
+        return Else_Node(data)
 
     def log_exp(self, left, right):
         return Log_Exp_Node(left, right)

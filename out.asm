@@ -13,17 +13,13 @@ jump_ifnot label1
 const 21
 const 23
 call Int:minus
-jump label0
+jumplabel0
 label1:
-const 1
-const 3
-call Int:Equals
-jump_ifnot label2
-const 1
-const 3
-call Int:Equals
-jump label0
-label0:
+const 71
+const 87
+call Int:plus
+jumplabel2 + label_num
+label0
 const 69
 const 69
 call Int:plus

@@ -6,7 +6,12 @@ program : statement*
 
 assignment : ident ":" ident "=" number
 
-if_statement : "if" log_exp "{" (statement)* "}" ("else if" log_exp "{" (statement)* "}")* ["else" "{" (statement)* "}"]
+if_statement : "if" log_exp "{" (statement)* "}" else_statement
+        | "if" log_exp "{" (statement)* "}"
+
+else_statement : "else if" log_exp "{" (statement)* "}" else_statement
+               | "else if" log_exp "{" (statement)* "}"
+               | "else" "{" (statement)* "}"
 
 log_exp: r_exp "==" r_exp   -> equals
         | r_exp "<=" r_exp   -> less_equals

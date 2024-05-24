@@ -170,46 +170,81 @@ class If_Node(ASTNode):
     def __init__(self, data):
         print(f"if node data: {data}")
         self.condition = data[0]
-        self.if_block = data[1]
-        self.label_count = 0
-        self.else_if_blocks = data[2:-1] if len(data) > 3 else []
-        self.else_block = data[-1] if len(data) > 2 else None
+        self.block = data[1]
+        self.else_block = data[2] if len(data) > 2 else None
         self.children = data
+        self.label_count = 0
 
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(f"if node data: {self.children}")
-        print(code)
-
-        # generate all of the needed labels
+        # make the labels
         last_label = self.label_gen()
-        else_if_labels = [self.label_gen() for _ in self.else_if_blocks]
         else_label = self.label_gen() if self.else_block else last_label
-        
-        # visit the children
+
+        #evaluate condition
         self.condition.code_gen(buffer)
-        buffer.append(f"jump_ifnot {else_if_labels[0] if self.else_if_blocks else else_label}")
-        self.if_block.code_gen(buffer)
-        buffer.append(f"jump {last_label}")
+        buffer.append(f"jump_ifnot {else_label}")
 
-        # visit else if
-        for num in range(0, len(self.else_if_blocks), 2):
-            buffer.append(f"{else_if_labels[num]}:")
-            self.else_if_blocks[num].code_gen(buffer)
-            buffer.append(f"jump_ifnot {else_if_labels[num+1] if (num + 1) < len(self.else_if_blocks) else else_label}")
-            self.else_if_blocks[num].code_gen(buffer)
-            buffer.append(f"jump {last_label}")
+        #evalute block
+        self.block.code_gen(buffer)
+        buffer.append(f"jump{last_label}")
 
-        # visit else
+        # visit else_block if it exists
+        if self.else_block:
+            buffer.append(f"{else_label}:")
+            label_num = self.label_count
+            self.else_block.code_gen(buffer, label_num)
 
-        # end label
-        buffer.append(last_label+":")
+        # last label
+        buffer.append(f"{last_label}")
 
     def label_gen(self):
         label = f"label{self.label_count}"
         self.label_count += 1
         return label
         
+class Else_Node(ASTNode):
+    def __init__(self, data):
+        print(f"else node node data: {data}")
+        if len(data) > 1:
+            self.condition = data[0]
+            self.block = data[1]
+            self.else_block = data[2]
+        else:
+            self.else_block = None
+            self.block = data[0]
+        self.children = data
+
+    def code_gen(self, buffer, label_num):
+        # pass current label number down to else
+        self.label_count = label_num
+        
+        last_label = f"{self.label_gen()} + label_num"
+        else_label = self.label_gen() if self.else_block else last_label
+
+        if len(self.children) > 1:
+            #evaluate condition
+            self.condition.code_gen(buffer)
+            buffer.append(f"jump_ifnot {else_label}")
+
+            #evalute block
+            self.block.code_gen(buffer)
+            buffer.append(f"jump{last_label}")
+
+            # visit else_block if it exists
+            if self.else_block:
+                buffer.append(f"{else_label}:")
+                label_num = self.label
+                self.else_block.code_gen(buffer, label_num)
+        else:
+            #evalute block
+            self.block.code_gen(buffer)
+            buffer.append(f"jump{last_label}")
+
+
+    def label_gen(self):
+        label = f"label{self.label_count}"
+        self.label_count += 1
+        return label
 
 class Log_Exp_Node(ASTNode):
     def __init__(self, left, right):
