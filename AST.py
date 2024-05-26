@@ -53,8 +53,6 @@ class ProgramNode(ASTNode):
 
     def code_gen(self):
         buffer = []
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
         for child in self.children:
             child.code_gen(buffer)
         return buffer
@@ -67,8 +65,7 @@ class AssigNode(ASTNode):
         self.children = [var_name, var_type, value]
     
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
+        self.var_type.code_gen_init(buffer)
         self.value.code_gen(buffer)
         self.var_type.code_gen(buffer)
         return True
@@ -81,8 +78,6 @@ class OpHelp(ASTNode):
         self.children = [left, right]
 
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
         opDict = {
           "+": "Int:plus",
           "-": "Int:minus",
@@ -107,8 +102,6 @@ class NumberNode(ASTNode):
         print(self.value)
 
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
         buffer.append(f"const {self.value}")
         return True
     
@@ -134,10 +127,11 @@ class IdentNode(ASTNode):
         print(self.name)
     
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
-        buffer.insert(0, f".local {self.name}")
-        buffer.append(f"store {self.name}")
+        buffer.append(f"load {self.name}")
+        return True
+    
+    def code_gen_init(self, buffer):
+        buffer.insert(0,f".local {self.name}")
         return True
 
     
@@ -160,8 +154,6 @@ class R_ExpNode(ASTNode):
         self.children = [expression]
 
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
         for child in self.children:
             child.code_gen(buffer)
         return True
@@ -259,11 +251,9 @@ class Less_Than_Node(ASTNode):
         self.children = [left, right]
 
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
-        buffer.append(code)
         self.left.code_gen(buffer)
         self.right.code_gen(buffer)
+        buffer.append(f"call Int:Equals")
 
 class Equals_Node(ASTNode):
     def __init__(self, left, right):
@@ -286,6 +276,32 @@ class Return_Node(ASTNode):
     def code_gen(self, buffer):
        self.value.code_gen(buffer)
        buffer.append(f"return 1") 
+
+class While_Node(ASTNode):
+    def __init__(self, condition, block):
+        self.condition = condition
+        self.block = block
+        self.children = [condition, block]
+        self.label_count = 0
+    
+    def code_gen(self, buffer):
+        # make labels for start and end of the loop
+        start_label = self.label_gen()
+        last_label = self.label_gen()
+
+        buffer.append(f"{start_label}:")
+
+        # evaluate the condition
+        self.condition.code_gen(buffer)
+        buffer.append(f"jump_ifnot {last_label}")
+        self.block.code_gen(buffer)
+        buffer.append(f"jump {start_label}")
+        buffer.append(f"{last_label}:")
+    
+    def label_gen(self):
+        label = f"label_while{self.label_count}"
+        self.label_count += 1
+        return label
 
 class Temp_Node(ASTNode):
     def __init__(self, left, right):
