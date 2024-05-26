@@ -1,5 +1,9 @@
 from lark import Lark, Transformer, v_args
 from AST import *
+import sys
+    
+success = '\x1b[6;30;42m' + 'Success!' + '\x1b[0m'
+fail = '\x1b[0;30;41m' + 'FAIL!' + '\x1b[0m'
 
 
 @v_args(inline=True)
@@ -47,6 +51,9 @@ class QuackTransformer(Transformer):
     
     def return_statement(self, value):
         return Return_Node(value)
+    
+    def while_statement(self, condition, block):
+        return While_Node(condition, block)
 
     def equals(self, left, right):
         return Equals_Node(left, right)
@@ -74,9 +81,10 @@ class QuackTransformer(Transformer):
 
 
 def main():
-    gram_file = open("grammar.lark", "r")
+    gram_file = open_grammar_file()
     parser = Lark(gram_file)
-    src_file = open("./test_progs/r_exp_test.qk", "r")
+    test_name = sys.argv[1]
+    src_file = open(test_name, "r")
     src_text = "".join(src_file.readlines())
     parse_tree = parser.parse(src_text)
 
@@ -84,8 +92,20 @@ def main():
 
     transformer = QuackTransformer()
     ast = transformer.transform(parse_tree)
-    print(f"ast is {repr(ast)}")
-    print(repr(ast.walk()))
+    grapher(ast)
+
+
+def open_grammar_file():
+    print("opening grammar file...............", end ="..")
+    try:
+        gram_file = open("grammar.lark", "r")
+        print("opening grammar file...............", end ="..")
+    except Exception as e:
+        print(f"...........{fail}")
+        print(e)
+
+
+def grapher(ast):
     graph = ast.to_graphviz()
     graph.render('ast', format='png', view=True)
     program = ast.code_gen()
