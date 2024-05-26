@@ -5,32 +5,16 @@ call Int:plus
 const 21
 call Int:plus
 const 17
-store x
-const 1
-const 2
-call Int:Equals
-jump_ifnot label1
-const 21
-const 23
-call Int:minus
-jump label0
-label1:
-const 1
+load x
+label_while0:
+load x
 const 3
 call Int:Equals
-jump_ifnot label2
-const 21
-const 23
-call Int:divi
-jump label0
-label2:
-const 71
-const 87
-call Int:plus
-jump label0
-label0:
+jump_ifnot label_while1
 const 69
 const 69
 call Int:plus
+jump label_while0
+label_while1:
 const 666
 return 1
