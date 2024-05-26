@@ -2,11 +2,13 @@
 
 program : statement* (return_statement)
 
-?statement : r_exp ";" | assignment ";" | if_statement
+?statement : r_exp ";" | assignment ";" | if_statement | while_statement
 
 assignment : ident ":" ident "=" number
 
 return_statement : "return" [r_exp] ";"
+
+while_statement : "while" log_exp "{" (statement)* "}"
 
 if_statement : "if" log_exp "{" (statement)* "}" else_statement
         | "if" log_exp "{" (statement)* "}"
@@ -37,8 +39,9 @@ r_exp : sum
         | product "/" atom  -> div
     
     ?atom: NUMBER           -> number
-         | "-" atom         -> neg
-         | "(" sum ")"
+        | IDENT             -> ident
+        | "-" atom         -> neg
+        | "(" sum ")"
 
 number: NUMBER
 NUMBER: /[0-9]+/
