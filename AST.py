@@ -1,5 +1,6 @@
 import logging
 from graphviz import Digraph
+from QuackChecker import *
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
@@ -39,13 +40,11 @@ class ASTNode:
             graph.edge(parent_id, node_id)
 
         for child in self.children:
-            print(type(child))
+            #print(type(child))
             child.to_graphviz(graph, node_id)
 
         return graph
-
-                
-
+ 
 class ProgramNode(ASTNode):
     def __init__(self, statements):
         self.statements = statements
@@ -58,16 +57,18 @@ class ProgramNode(ASTNode):
         return buffer
 
 class AssigNode(ASTNode):
-    def __init__(self, var_type, var_name, value):
+    #TODO: need to add support for assig without type identifier
+
+    def __init__(self, var_name, var_type, value):
         self.var_type = var_type
         self.var_name = var_name
         self.value = value
-        self.children = [var_name, var_type, value]
+        self.children = [var_type, var_name, value]
     
     def code_gen(self, buffer):
-        self.var_type.code_gen_init(buffer)
+        self.var_name.code_gen_init(buffer)
         self.value.code_gen(buffer)
-        self.var_type.code_gen(buffer)
+        self.var_name.code_gen(buffer)
         return True
 
 class OpHelp(ASTNode):
@@ -75,7 +76,7 @@ class OpHelp(ASTNode):
         self.left = left
         self.right = right
         self.op = op
-        self.children = [left, right]
+        self.children = [right, left]
 
     def code_gen(self, buffer):
         opDict = {
@@ -88,7 +89,6 @@ class OpHelp(ASTNode):
         for child in self.children:
             child.code_gen(buffer)
         buffer.append(f"call {opDict[self.op]}")
-        return True
     
     def walk(self):
         print(self.children)
@@ -96,7 +96,8 @@ class OpHelp(ASTNode):
 class NumberNode(ASTNode):
     def __init__(self, value):
         self.value = value
-        self.children = value
+        self.type = "Int"
+        self.children = None
 
     def walk(self):
         print(self.value)
@@ -121,19 +122,16 @@ class NumberNode(ASTNode):
 class IdentNode(ASTNode):
     def __init__(self, name):
         self.name = name
-        self.children = name
+        self.children = None
     
     def walk(self):
         print(self.name)
     
     def code_gen(self, buffer):
-        buffer.append(f"load {self.name}")
-        return True
+        buffer.append(f"store {self.name}")
     
     def code_gen_init(self, buffer):
         buffer.insert(0,f".local {self.name}")
-        return True
-
     
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
