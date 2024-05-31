@@ -123,7 +123,10 @@ def generate_code(ast):
         
         with open('out.asm', 'w') as f:
             for line in program:
-                f.write(f"{line}\n")
+                # check for none, outputing alternating None
+                # values for some reason
+                if line != "None":
+                    f.write(f"{line}\n")
         print(f"...............{success}")
     except Exception as e:
         print(f"...........{fail}")

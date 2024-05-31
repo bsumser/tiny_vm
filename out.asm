@@ -1,12 +1,18 @@
-.local x
-.local y
-store true
-store y
-store y
+const 25
 const 17
-const 18
-call Int:plus
 call Int:plus
 store x
 const 0
+store y
+load x
+const 25
+call Int:Equals
+jump_ifnot label0
+const 25
+load x
+call Int:plus
+store y
+jump label0
+label0:
+load y
 return 1

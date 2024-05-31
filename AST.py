@@ -18,7 +18,7 @@ class ASTNode:
     def __repr__(self):
         return repr(self.__dict__)
 
-    def code_gen(self):
+    def code_gen(self, buffer):
         raise NotImplemented("AST BASE CLASS")
 
     def to_graphviz(self, graph=None, parent_id=None):
@@ -81,9 +81,8 @@ class AssigNode(ASTNode):
         #self.children = [var_type, var_name, value]
     
     def code_gen(self, buffer):
-        self.var_name.code_gen_init(buffer)
         buffer.append(f"{self.value.code_gen(buffer)}")
-        buffer.append(f"store {self.var_name.code_gen(buffer)}")
+        buffer.append(f"{self.var_name.code_gen(buffer)}")
 
 class OpHelp(ASTNode):
     def __init__(self, left, right, op):
@@ -142,9 +141,7 @@ class IdentNode(ASTNode):
     
     def code_gen(self, buffer):
         # old way, doesnt load right in situations such as x = y + 1
-        #buffer.append(f"load {self.name}")
-
-        return self.name
+        buffer.append(f"load {self.name}")
     
     def code_gen_init(self, buffer):
         buffer.insert(0,f".local {self.name}")
@@ -170,7 +167,6 @@ class R_ExpNode(ASTNode):
     def code_gen(self, buffer):
         for child in self.children:
             child.code_gen(buffer)
-        return True
     
 class L_ExpNode(ASTNode):
     def __init__(self, name):
@@ -189,9 +185,8 @@ class VarNode(ASTNode):
         print(self.name)
     
     def code_gen(self, buffer):
-        # old way, doesnt load right in situations such as x = y + 1
-        #buffer.append(f"load {self.name}")
-        raise Exception(f"{self.__class__.__name__} code gen not implemented")
+        buffer.append(f"store {self.name}")
+        #raise Exception(f"{self.__class__.__name__} code gen not implemented")
     
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
