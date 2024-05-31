@@ -1,8 +1,8 @@
 42 + 21 + 21;
-x: Int = 17;
+x: Int = 17 + 25;
 
 while x < 3 {
    69 + 69;
 }
 
-return 666;
+return x;

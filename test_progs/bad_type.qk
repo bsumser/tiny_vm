@@ -1,0 +1,3 @@
+x: Floop = 17;
+
+return x;

@@ -1,0 +1,4 @@
+y: Boolean = true;
+x: Int = 18 + 17 + y;
+
+return 0;
