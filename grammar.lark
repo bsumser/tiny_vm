@@ -2,9 +2,9 @@
 
 program : statement* (return_statement)
 
-?statement : r_exp ";" | assignment ";" | if_statement | while_statement
+?statement : r_exp ";" | assignment ";" | if_statement | while_statement | return_statement
 
-assignment : ident ":" ident "=" number
+assignment : ident [":" ident] "=" r_exp
 
 return_statement : "return" [r_exp] ";"
 
