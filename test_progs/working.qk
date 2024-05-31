@@ -1,0 +1,7 @@
+x: Int = 17 + 25;
+
+y: Int = 0;
+
+y = x + 25;
+
+return y;
