@@ -1,121 +1,141 @@
 from lark import Lark, Transformer, v_args
 from AST import *
+from QuackChecker import *
+from QuackTransformer import *
 import sys
     
 success = '\x1b[6;30;42m' + 'Success!' + '\x1b[0m'
+working = '\x1b[1;33;43m' + 'Working...' + '\x1b[0m'
 fail = '\x1b[0;30;41m' + 'FAIL!' + '\x1b[0m'
 
-
-@v_args(inline=True)
-class QuackTransformer(Transformer):
-    def program(self, *statements):
-        return ProgramNode(statements)
-
-    def assignment(self, var_type, var_name, value):
-        return AssigNode(var_type, var_name, value)
-    
-    def add(self, left, right):
-        return OpHelp(left, right, '+')
-
-    def sub(self, left, right):
-        return OpHelp(left, right, '-')
-
-    def mul(self, left, right):
-        return OpHelp(left, right, '*')
-
-    def div(self, left, right):
-        return OpHelp(left, right, '/')
-
-    def number(self, value):
-        return NumberNode(int(value))
-
-    def ident(self, name):
-        return IdentNode(name)
-
-    def neg(self, value):
-        return OpHelp(NumberNode(0), value, '-')  # Unary minus can be treated as 0 - value
-    
-    def r_exp(self, expression):
-        return R_ExpNode(expression)
-    
-    @v_args(inline=False)
-    def if_statement(self, data):
-        return If_Node(data)
-    
-    @v_args(inline=False)
-    def else_statement(self, data):
-        return Else_Node(data)
-
-    def log_exp(self, left, right):
-        return Log_Exp_Node(left, right)
-    
-    def return_statement(self, value):
-        return Return_Node(value)
-    
-    def while_statement(self, condition, block):
-        return While_Node(condition, block)
-
-    def equals(self, left, right):
-        return Equals_Node(left, right)
-
-    def less_equals(self, left, right):
-        return Temp_Node(left, right)
-
-    def less_than(self, left, right):
-        return Less_Than_Node(left, right)
-
-    def great_equals(self, left, right):
-        return Temp_Node(left, right)
-
-    def great_than(self, left, right):
-        return Temp_Node(left, right)
-
-    def and_(self, left, right):
-        return Temp_Node(left, right)
-
-    def or_(self, left, right):
-        return Temp_Node(left, right)
-
-    def not_(self, left, right):
-        return Temp_Node(left, right)
-
-
 def main():
+    # open our grammar file
     gram_file = open_grammar_file()
-    parser = Lark(gram_file)
-    test_name = sys.argv[1]
-    src_file = open(test_name, "r")
-    src_text = "".join(src_file.readlines())
-    parse_tree = parser.parse(src_text)
 
-    print(parse_tree.pretty())
+    # parse file into grammar with lark
+    parser = parse_grammar(gram_file)
 
-    transformer = QuackTransformer()
-    ast = transformer.transform(parse_tree)
+    # read the input program
+    test_prog = read_input_program()
+
+    # construct the parse tree for test program
+    parse_tree = parse_code(parser, test_prog)
+
+    # parse the code
+    ast = transform_code(parse_tree)
+
+    # typecheck the code
+    type_check(ast)
+    
+    # print graph of concrete syntax tree
     grapher(ast)
-
+    
+    # generate code from concrete syntax tree
+    generate_code(ast)
+    
 
 def open_grammar_file():
-    print("opening grammar file...............", end ="..")
+    print("opening grammar file............", end ="..")
     try:
-        gram_file = open("grammar.lark", "r")
-        print("opening grammar file...............", end ="..")
+        gram_file = open("./grammar.lark", "r")
+        print(f"...............{success}")
+        return gram_file
     except Exception as e:
         print(f"...........{fail}")
-        print(e)
+        sys.exit(f"exception of {e}")
 
+def parse_grammar(gram_file):
+    print("parsing grammar file............", end ="..")
+    try:
+        parser = Lark(gram_file, parser="lalr")
+        print(f"...............{success}")
+        return parser
+    except Exception as e:
+        print(f"...........{fail}")
+        sys.exit(f"exception of {e}")
+
+def read_input_program():
+    print("reading input program............", end ="..")
+    try:
+        test_prog = sys.argv[1]
+        # read the input program
+        src_file = open(test_prog, "r")
+        src_text = "".join(src_file.readlines())
+        print(f"...............{success}")
+        return src_text
+    except Exception as e:
+        print(f"...........{fail}")
+        sys.exit(f"exception of {e}")
+
+def type_check(ast):
+    print(f"type checking program............{working}")
+    try:
+        # init our typechecker class with our concrete syntax tree
+        type_checker = QuackChecker(ast)
+
+        #collect all variable inits
+        type_checker.collect_inits()
+
+        print(type_checker.var_inits)
+
+        type_checker.explicit_types()
+        if not type_checker.check:
+            print(f"type checking program...........{fail}")
+            sys.exit("QuackChecker error")
+        else:
+            print(f"type checking program...................{success}")
+    except Exception as e:
+        print(f"type checking program...........{fail}")
+        sys.exit(f"QuackChecker type exception: {e}")
+
+def transform_code(parse_tree):
+    # initialize our transformer
+    transformer = QuackTransformer()
+    
+    # apply our transformer to the parse tree
+    ast = transformer.transform(parse_tree)
+
+    return ast
+
+def parse_code(parser, test_prog):
+    print("parsing input program...............", end ="..")
+    try:
+        # construct the parse tree for test program
+        parse_tree = parser.parse(test_prog)
+        print(f"...............{success}")
+    
+        # print parse tree
+        print(parse_tree.pretty())
+
+        return parse_tree
+
+    except Exception as e:
+        print(f"...........{fail}")
+        sys.exit(f"exception of {e}")
+
+
+def generate_code(ast):
+    print("generating code for program...............", end ="..")
+    try:
+        program = ast.code_gen()
+        
+        with open('out.asm', 'w') as f:
+            for line in program:
+                f.write(f"{line}\n")
+        print(f"...............{success}")
+    except Exception as e:
+        print(f"...........{fail}")
+        sys.exit(f"exception of {e}")
 
 def grapher(ast):
-    graph = ast.to_graphviz()
-    graph.render('ast', format='png', view=True)
-    program = ast.code_gen()
-
-    for line in program:
-        print(line)
-
-    with open('out.asm', 'w') as f:
-        for line in program:
-            f.write(f"{line}\n")
+    print("generating graph............", end ="..")
+    try:
+        graph = ast.to_graphviz()
+        graph.render('ast', format='png', view=True)
+        print(f"...............{success}")
+    except Exception as e:
+        print(f"...........{fail}")
+        sys.exit(f"exception of {e}")
 
 if __name__=="__main__": 
     main()
