@@ -60,7 +60,9 @@ class QuackChecker():
                     else:
                         rightType = node.right.type
 
-                    if leftType is not rightType:
+                    if leftType != rightType:
+                        print(type(leftType))
+                        print(type(rightType))
                         raise Exception(f"Type mismatch of {leftType} to {rightType} on operation {node.op}")
 
             
