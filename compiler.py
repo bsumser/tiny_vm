@@ -3,6 +3,8 @@ from AST import *
 from QuackChecker import *
 from QuackTransformer import *
 import sys
+import traceback
+
     
 success = '\x1b[6;30;42m' + 'Success!' + '\x1b[0m'
 working = '\x1b[1;33;43m' + 'Working...' + '\x1b[0m'
@@ -25,7 +27,7 @@ def main():
     ast = transform_code(parse_tree)
 
     # typecheck the code
-    type_check(ast)
+    #type_check(ast)
     
     # print graph of concrete syntax tree
     grapher(ast)
@@ -135,6 +137,7 @@ def grapher(ast):
         print(f"...............{success}")
     except Exception as e:
         print(f"...........{fail}")
+        print(traceback.format_exc())
         sys.exit(f"exception of {e}")
 
 if __name__=="__main__": 
