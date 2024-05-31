@@ -89,3 +89,11 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+ast
+ast.png
+ast
+ast.png
+out.asm
+__pycache__/AST.cpython-310.pyc
+__pycache__/QuackChecker.cpython-310.pyc
+__pycache__/QuackTransformer.cpython-310.pyc
