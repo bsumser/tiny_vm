@@ -26,12 +26,17 @@ class ASTNode:
             graph = Digraph()
 
         node_id = str(id(self))
+        
+        # old way to make label
         label = self.__class__.__name__
+
         if isinstance(self, OpHelp):
             label += f' ({self.op})'
         elif isinstance(self, NumberNode):
             label += f' ({self.value})'
         elif isinstance(self, IdentNode):
+            label += f' ({self.name})'
+        elif isinstance(self, VarNode):
             label += f' ({self.name})'
 
         graph.node(node_id, label)
@@ -40,7 +45,8 @@ class ASTNode:
             graph.edge(parent_id, node_id)
 
         for child in self.children:
-            #print(type(child))
+            print(type(self))
+            print(type(child))
             child.to_graphviz(graph, node_id)
 
         return graph
@@ -59,17 +65,25 @@ class ProgramNode(ASTNode):
 class AssigNode(ASTNode):
     #TODO: need to add support for assig without type identifier
 
-    def __init__(self, var_name, var_type, value):
-        self.var_type = var_type
-        self.var_name = var_name
-        self.value = value
-        self.children = [var_type, var_name, value]
+    def __init__(self, data):
+        #case for init with ident
+        self.var_name = data[0]
+        self.var_type = data[1]
+        self.value = data[2]
+        if data[1] is None:
+            del data[1]
+        self.children = data
+        
+        #old stuff
+        #self.var_type = var_type
+        #self.var_name = var_name
+        #self.value = value
+        #self.children = [var_type, var_name, value]
     
     def code_gen(self, buffer):
         self.var_name.code_gen_init(buffer)
-        self.value.code_gen(buffer)
-        self.var_name.code_gen(buffer)
-        return True
+        buffer.append(f"{self.value.code_gen(buffer)}")
+        buffer.append(f"store {self.var_name.code_gen(buffer)}")
 
 class OpHelp(ASTNode):
     def __init__(self, left, right, op):
@@ -104,7 +118,6 @@ class NumberNode(ASTNode):
 
     def code_gen(self, buffer):
         buffer.append(f"const {self.value}")
-        return True
     
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
@@ -128,7 +141,10 @@ class IdentNode(ASTNode):
         print(self.name)
     
     def code_gen(self, buffer):
-        buffer.append(f"store {self.name}")
+        # old way, doesnt load right in situations such as x = y + 1
+        #buffer.append(f"load {self.name}")
+
+        return self.name
     
     def code_gen_init(self, buffer):
         buffer.insert(0,f".local {self.name}")
@@ -156,6 +172,40 @@ class R_ExpNode(ASTNode):
             child.code_gen(buffer)
         return True
     
+class L_ExpNode(ASTNode):
+    def __init__(self, name):
+        self.name = name
+        self.children = [name]
+
+    def code_gen(self, buffer):
+        raise Exception(f"{self.__class__.__name__} code gen not implemented")
+
+class VarNode(ASTNode):
+    def __init__(self, name):
+        self.name = name
+        self.children = None
+    
+    def walk(self):
+        print(self.name)
+    
+    def code_gen(self, buffer):
+        # old way, doesnt load right in situations such as x = y + 1
+        #buffer.append(f"load {self.name}")
+        raise Exception(f"{self.__class__.__name__} code gen not implemented")
+    
+    def to_graphviz(self, graph=None, parent_id=None):
+        if graph is None:
+            graph = Digraph()
+
+        node_id = str(id(self))
+        label = self.__class__.__name__
+        graph.node(node_id, label)
+
+        if parent_id is not None:
+            graph.edge(parent_id, node_id)
+
+        return graph
+
 class If_Node(ASTNode):
     def __init__(self, data):
         print(f"if node data: {data}")
