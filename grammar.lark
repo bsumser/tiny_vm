@@ -2,9 +2,9 @@
 
 program : statement* (return_statement)
 
-?statement : r_exp ";" | assignment ";" | if_statement | while_statement | return_statement
+?statement : r_exp ";" | assignment | if_statement | while_statement | return_statement
 
-assignment : ident [":" ident] "=" r_exp
+assignment : l_exp [":" ident] "=" r_exp ";"
 
 return_statement : "return" [r_exp] ";"
 
@@ -29,6 +29,8 @@ log_exp: r_exp "==" r_exp   -> equals
         | NUMBER
     
 r_exp : sum
+
+l_exp : IDENT -> var
 
 ?sum: product
         | sum "+" product   -> add
