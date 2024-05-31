@@ -6,8 +6,9 @@ class QuackTransformer(Transformer):
     def program(self, *statements):
         return ProgramNode(statements)
 
-    def assignment(self, var_type, var_name, value):
-        return AssigNode(var_type, var_name, value)
+    @v_args(inline=False)
+    def assignment(self, data):
+        return AssigNode(data)
     
     def add(self, left, right):
         return OpHelp(left, right, '+')
@@ -32,6 +33,12 @@ class QuackTransformer(Transformer):
     
     def r_exp(self, expression):
         return R_ExpNode(expression)
+    
+    def l_exp(self, name):
+        return L_ExpNode(name)
+    
+    def var(self, name):
+        return VarNode(name)
     
     @v_args(inline=False)
     def if_statement(self, data):
