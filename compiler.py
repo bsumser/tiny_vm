@@ -27,13 +27,15 @@ def main():
     ast = transform_code(parse_tree)
 
     # typecheck the code
-    #type_check(ast)
+    type_check(ast)
     
     # print graph of concrete syntax tree
     grapher(ast)
     
     # generate code from concrete syntax tree
     generate_code(ast)
+
+    sys.exit(0)
     
 
 def open_grammar_file():
@@ -43,8 +45,9 @@ def open_grammar_file():
         print(f"...............{success}")
         return gram_file
     except Exception as e:
-        print(f"...........{fail}")
-        sys.exit(f"exception of {e}")
+        print(f"opening grammar file...........{fail}")
+        print(traceback.format_exc())
+        sys.exit(f"Grammar file read exception of {e}")
 
 def parse_grammar(gram_file):
     print("parsing grammar file............", end ="..")
@@ -53,8 +56,9 @@ def parse_grammar(gram_file):
         print(f"...............{success}")
         return parser
     except Exception as e:
-        print(f"...........{fail}")
-        sys.exit(f"exception of {e}")
+        print(f"parsing grammar file...........{fail}")
+        print(traceback.format_exc())
+        sys.exit(f"Parsing exception of {e}")
 
 def read_input_program():
     print("reading input program............", end ="..")
@@ -66,8 +70,9 @@ def read_input_program():
         print(f"...............{success}")
         return src_text
     except Exception as e:
-        print(f"...........{fail}")
-        sys.exit(f"exception of {e}")
+        print(f"reading input program...........{fail}")
+        print(traceback.format_exc())
+        sys.exit(f"Reading input program exception of {e}")
 
 def type_check(ast):
     print(f"type checking program............{working}")
@@ -88,16 +93,23 @@ def type_check(ast):
             print(f"type checking program...................{success}")
     except Exception as e:
         print(f"type checking program...........{fail}")
+        print(traceback.format_exc())
         sys.exit(f"QuackChecker type exception: {e}")
 
 def transform_code(parse_tree):
-    # initialize our transformer
-    transformer = QuackTransformer()
+    print(f"transforming ast.................{working}")
+    try:
+        # initialize our transformer
+        transformer = QuackTransformer()
     
-    # apply our transformer to the parse tree
-    ast = transformer.transform(parse_tree)
-
-    return ast
+        # apply our transformer to the parse tree
+        ast = transformer.transform(parse_tree)
+        print(f"...............{success}")
+        return ast
+    except Exception as e:
+        print(f"ast transformation..............{fail}")
+        print(traceback.format_exc())
+        sys.exit(f"Transformer exception: {e}")
 
 def parse_code(parser, test_prog):
     print("parsing input program...............", end ="..")
@@ -113,6 +125,7 @@ def parse_code(parser, test_prog):
 
     except Exception as e:
         print(f"...........{fail}")
+        print(traceback.format_exc())
         sys.exit(f"exception of {e}")
 
 
@@ -121,22 +134,24 @@ def generate_code(ast):
     try:
         program = ast.code_gen()
         
-        with open('out.asm', 'w') as f:
+        with open('QkAsm/qkmain.asm', 'w') as f:
             for line in program:
                 # check for none, outputing alternating None
                 # values for some reason
                 if line != "None":
                     f.write(f"{line}\n")
         print(f"...............{success}")
+        print(f"saved to QkAsm/qkmain.asm")
     except Exception as e:
         print(f"...........{fail}")
+        print(traceback.format_exc())
         sys.exit(f"exception of {e}")
 
 def grapher(ast):
     print("generating graph............", end ="..")
     try:
         graph = ast.to_graphviz()
-        graph.render('ast', format='png', view=True)
+        #graph.render('ast', format='png', view=True)
         print(f"...............{success}")
     except Exception as e:
         print(f"...........{fail}")
