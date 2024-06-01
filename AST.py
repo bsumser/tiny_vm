@@ -56,8 +56,12 @@ class ProgramNode(ASTNode):
         self.statements = statements
         self.children = statements
 
+
     def code_gen(self):
         buffer = []
+        buffer.append(".class $Main:Obj")
+        buffer.append(".method $constructor")
+        buffer.append(".local ")
         for child in self.children:
             child.code_gen(buffer)
         return buffer
@@ -81,8 +85,13 @@ class AssigNode(ASTNode):
         #self.children = [var_type, var_name, value]
     
     def code_gen(self, buffer):
-        buffer.append(f"{self.value.code_gen(buffer)}")
-        buffer.append(f"{self.var_name.code_gen(buffer)}")
+        if (self.var_type == None):
+            buffer.append(f"{self.value.code_gen(buffer)}")
+            buffer.append(f"store {self.var_name.get_name()}")
+        else:
+            buffer[2] += f"{self.var_name.get_name()},"
+            buffer.append(f"{self.value.code_gen(buffer)}")
+            buffer.append(f"store {self.var_name.get_name()}")
 
 class OpHelp(ASTNode):
     def __init__(self, left, right, op):
@@ -185,9 +194,12 @@ class VarNode(ASTNode):
         print(self.name)
     
     def code_gen(self, buffer):
-        buffer.append(f"store {self.name}")
+        buffer.append(f"load {self.name}")
         #raise Exception(f"{self.__class__.__name__} code gen not implemented")
     
+    def get_name(self):
+        return self.name
+
     def to_graphviz(self, graph=None, parent_id=None):
         if graph is None:
             graph = Digraph()
@@ -233,8 +245,13 @@ class If_Node(ASTNode):
         buffer.append(f"{last_label}:")
 
     def label_gen(self):
+        if ('global_label_count' not in globals()):
+            #init the global label counter
+            global global_label_count
+            global_label_count = 0
         label = f"label{self.label_count}"
-        self.label_count += 1
+        self.label_count += 1 + global_label_count
+        global_label_count += 1
         return label
         
 class Else_Node(ASTNode):
@@ -277,8 +294,13 @@ class Else_Node(ASTNode):
 
 
     def label_gen(self):
+        if ('global_label_count' not in globals()):
+            #init the global label counter
+            global global_label_count
+            global_label_count = 0
         label = f"label{self.label_count}"
-        self.label_count += 1
+        self.label_count += 1 + global_label_count
+        global_label_count += 1
         return label
 
 class Log_Exp_Node(ASTNode):
@@ -296,7 +318,7 @@ class Less_Than_Node(ASTNode):
     def code_gen(self, buffer):
         self.left.code_gen(buffer)
         self.right.code_gen(buffer)
-        buffer.append(f"call Int:Equals")
+        buffer.append(f"call Int:equals")
 
 class Equals_Node(ASTNode):
     def __init__(self, left, right):
@@ -305,11 +327,9 @@ class Equals_Node(ASTNode):
         self.children = [left, right]
 
     def code_gen(self, buffer):
-        code = (f"code gen at {self.__class__.__name__}")
-        print(code)
         self.left.code_gen(buffer)
         self.right.code_gen(buffer)
-        buffer.append(f"call Int:Equals")
+        buffer.append(f"call Int:equals")
 
 class Return_Node(ASTNode):
     def __init__(self, value):
@@ -342,8 +362,13 @@ class While_Node(ASTNode):
         buffer.append(f"{last_label}:")
     
     def label_gen(self):
+        if ('global_label_count' not in globals()):
+            #init the global label counter
+            global global_label_count
+            global_label_count = 0
         label = f"label_while{self.label_count}"
-        self.label_count += 1
+        self.label_count += 1 + global_label_count
+        global_label_count += 1
         return label
 
 class Temp_Node(ASTNode):
