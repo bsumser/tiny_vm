@@ -30,7 +30,7 @@ class QuackChecker():
 
 
         def check_explicit_type(node):
-            if isinstance(node, AST.AssigNode):
+            if isinstance(node, AST.AssigNode) and node.var_type != None:
                 # check to make sure type is supported
                 if node.var_type.name not in self.types:
                     raise Exception(f"Unsupported type of {node.var_type.name} found")
@@ -79,7 +79,8 @@ class QuackChecker():
             if isinstance(root, AST.AssigNode):
                 # TODO: fix this, no idea why this works 
                 # still has a token in the name and type field for some reason
-                self.var_inits[root.var_name.name[0]] = root.var_type.name[0:3]
+                if (root.var_type != None):
+                    self.var_inits[root.var_name.get_name()] = root.var_type.name
 
             if root.children:
                 for node in root.children:
