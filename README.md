@@ -37,7 +37,12 @@ There is a directory titled "test_progs" which contains a sample of working Quac
 ./quack_mass.sh "directory_name"
 ```
 
-in order to compile every quack program in a directory.
+in order to compile every quack program in a directory. If you run into errors with the type checker, for example throwing errors for programs that it shouldn't, feel free to comment out the call the the type checker on line 30 of compiler.py:
+
+```console
+# typecheck the code
+type_check(ast)
+```
 
 ## Working
 
